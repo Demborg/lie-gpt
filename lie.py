@@ -25,6 +25,8 @@ At the end of the game the good team (Detective and Fool) win if they manage to 
 
 All messages will be prefaced with the name of the player sending the message which will look like this: [ name ] message. These tags will be automatically added to messages and any usage of [] in your own text is prohibitetd and will be stripped out.
 
+Remember that the game is very short and that playing passively will not give you enough information to win. You will have to be active and try to get information out of the other players.
+
 Night is now setting over the town so let’s get started!
 """
 
@@ -79,9 +81,16 @@ def format_title(name, role):
     return colored(f"[ {name} ({role}) ]", COLOR_FROM_ROLE[role])
 
 
+def extract_vote(message, names):
+    for name in names:
+        if name.lower() in message.lower():
+            return name
+    return None
+
+
 def main():
     players = list(zip(random.sample(NAMES, len(ROLES)), ROLES))
-    print(players)
+    print("Players", players)
 
     townsquare = []
     for round in range(ROUNDS):
@@ -104,9 +113,24 @@ def main():
         )
     ]
     print(colored(f"Voting time", "dark_grey"))
+
+    votes = {name: 0 for name, _ in players}
     for name, role in players:
         message = query(name, role, players, townsquare)
         print(format_title(name, role), message)
+        vote = extract_vote(message, names=[n for n, _ in players])
+        if vote:
+            votes[vote] += 1
+
+    for name, votes in votes.items():
+        if votes >= len(players) / 2:
+            role = [r for n, r in players if n == name][0]
+            print(colored(f"{name} ({role}) was voted out"), "dark_gray")
+            if role == "The Gangster":
+                print(colored(f"The good team wins!", "green"))
+            else:
+                print(colored(f"The bad team wins!", "red"))
+            break
 
 
 if __name__ == "__main__":
