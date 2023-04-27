@@ -2,6 +2,8 @@ import os
 import random
 
 import openai
+from termcolor import colored
+
 
 NAMES = ["Axel", "Roxana", "Alexi", "Fulvio", "Patrik", "Scott", "Magnus", "Jon"]
 ROLES = ["The Fool", "The Gangster", "The Detective"]
@@ -24,6 +26,8 @@ All messages will be prefaced with the name of the player sending the message wh
 
 Night is now setting over the town so let’s get started!
 """
+
+COLOR_FROM_ROLE = {"The Fool": "green", "The Gangster": "red", "The Detective": "blue"}
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 openai.organization = "org-ClLAnF8IUOe9LazYsaP3aN3q"
@@ -70,6 +74,10 @@ def query(name, role, players, townsquare):
     return response.choices[0]["message"]["content"]
 
 
+def format_title(name, role):
+    return colored(f"[ {name} ({role}) ]", COLOR_FROM_ROLE[role])
+
+
 def main():
     players = list(zip(random.sample(NAMES, len(ROLES)), ROLES))
     print(players)
@@ -84,7 +92,7 @@ def main():
         )
         for name, role in random.sample(players, len(players)):
             message = query(name, role, players, townsquare)
-            print(f"[ {name} ({role}) ] {message}")
+            print(format_title(name, role), message)
             townsquare.append((name, message))
 
     townsquare += [
@@ -95,7 +103,7 @@ def main():
     ]
     for name, role in players:
         message = query(name, role, players, townsquare)
-        print(f"[ {name} ({role}) ] {message}")
+        print(format_title(name, role), message)
 
 
 if __name__ == "__main__":
