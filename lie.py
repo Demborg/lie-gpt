@@ -7,7 +7,7 @@ NAMES = ["Axel", "Roxana", "Alexi", "Fulvio", "Patrik", "Scott", "Magnus", "Jon"
 ROLES = ["The Fool", "The Gangster", "The Detective"]
 ROUNDS = 1
 INTRO = """
-Let's play a game! 
+You are a highly profficent and well versed player of social deduction games. You will now be pitted against a few formiddable oponents to battle for the glory of ultumate champion. 
 
 We will play a game of simplified mafia where you will play together with two other players. Each of you will be randomly assigned a role and a name. The three roles are:
 The fool: the fool wants  the good team to win but has no clue about what is going on in the town, only that he is good and that he wants good to prevail. The fool wins if the gangster is voted out
@@ -18,7 +18,6 @@ The game works in three phases:
 First during the night the roles and names will be assigned to each of the players. Roles are secret but the names of the players will be known.
 Secondly during the day there will be time to discuss your knowledge of the town and your suspicions against each other. This will take place during 3 rounds in which you will be allowed to state your case to the rest of the town and address any allegations made against you.
 Finally during the night you will vote on which other player you want excommunicated from the town. Voting takes place in secret and only the result gets known.
-
 At the end of the game the good team (Detective and Fool) win if they manage to vote out the gangster and the bad team (gangster) wins if he manages to vote out the detective.
 
 All messages will be prefaced with the name of the player sending the message which will look like this: [ name ] message.
@@ -52,7 +51,7 @@ def make_message(name, message, player):
     if player == "":
         return {"role": "system", "content": f"{message}"}
     if name == player:
-        return {"role": "agent", "content": f"{message}"}
+        return {"role": "assistant", "content": f"{message}"}
     return {"role": "user", "content": f"[{ player }] {message}"}
 
 
@@ -63,7 +62,10 @@ def main():
     townsquare = []
     for round in range(ROUNDS):
         townsquare.append(
-            ("", f"Round {round + 1} of {ROUNDS} is starting!")
+            (
+                "",
+                f"Round {round + 1} of {ROUNDS} is starting, after the final round you will have to vote someone out so make sure to gather enough information.",
+            )
         )
         for name, role in players:
             intro = make_intro(name, role, players)
@@ -71,7 +73,6 @@ def main():
                 make_message(name, message, player)
                 for player, message in intro + townsquare
             ]
-            print(messages)
             response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo", messages=messages
             )
