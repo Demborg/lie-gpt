@@ -47,12 +47,27 @@ def make_intro(name, role, players):
     return intro
 
 
+def make_prompt(name, role):
+    return [("", f"As {name} the {role} what do you want to say?")]
+
+
 def make_message(name, message, player):
     if player == "":
         return {"role": "system", "content": f"{message}"}
     if name == player:
         return {"role": "assistant", "content": f"{message}"}
     return {"role": "user", "content": f"[{ player }] {message}"}
+
+
+def query(name, role, players, townsquare):
+    intro = make_intro(name, role, players)
+    prompt = make_prompt(name, role)
+    messages = [
+        make_message(name, message, player)
+        for player, message in intro + townsquare + prompt
+    ]
+    response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
+    return response.choices[0]["message"]["content"]
 
 
 def main():
@@ -67,18 +82,20 @@ def main():
                 f"Round {round + 1} of {ROUNDS} is starting, after the final round you will have to vote someone out so make sure to gather enough information.",
             )
         )
-        for name, role in players:
-            intro = make_intro(name, role, players)
-            messages = [
-                make_message(name, message, player)
-                for player, message in intro + townsquare
-            ]
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo", messages=messages
-            )
-            message = response.choices[0]["message"]["content"]
+        for name, role in random.sample(players, len(players)):
+            message = query(name, role, players, townsquare)
             print(f"[ {name} ({role}) ] {message}")
             townsquare.append((name, message))
+
+    townsquare += [
+        (
+            "",
+            "The final round is over, time to vote! Answer only with the name of the person you want to vote out.",
+        )
+    ]
+    for name, role in players:
+        message = query(name, role, players, townsquare)
+        print(f"[ {name} ({role}) ] {message}")
 
 
 if __name__ == "__main__":
