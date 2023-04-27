@@ -1,5 +1,6 @@
 import os
 import random
+import re
 
 import openai
 from termcolor import colored
@@ -71,7 +72,7 @@ def query(name, role, players, townsquare):
         for player, message in intro + townsquare + prompt
     ]
     response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
-    return response.choices[0]["message"]["content"]
+    return re.sub("\[[^\]]*\]", "", response.choices[0]["message"]["content"])
 
 
 def format_title(name, role):
