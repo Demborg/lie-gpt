@@ -7,7 +7,7 @@ from termcolor import colored
 
 NAMES = ["Axel", "Roxana", "Alexi", "Fulvio", "Patrik", "Scott", "Magnus", "Jon"]
 ROLES = ["The Fool", "The Gangster", "The Detective"]
-ROUNDS = 1
+ROUNDS = 2
 INTRO = """
 You are a highly profficent and well versed player of social deduction games. You will now be pitted against a few formiddable oponents to battle for the glory of ultumate champion. 
 
@@ -22,7 +22,7 @@ Secondly during the day there will be time to discuss your knowledge of the town
 Finally during the night you will vote on which other player you want excommunicated from the town. Voting takes place in secret and only the result gets known.
 At the end of the game the good team (Detective and Fool) win if they manage to vote out the gangster and the bad team (gangster) wins if he manages to vote out the detective.
 
-All messages will be prefaced with the name of the player sending the message which will look like this: [ name ] message.
+All messages will be prefaced with the name of the player sending the message which will look like this: [ name ] message. These tags will be automatically added to messages and any usage of [] in your own text is prohibitetd and will be stripped out.
 
 Night is now setting over the town so let’s get started!
 """
@@ -90,6 +90,7 @@ def main():
                 f"Round {round + 1} of {ROUNDS} is starting, after the final round you will have to vote someone out so make sure to gather enough information.",
             )
         )
+        print(colored(f"Round {round + 1} of {ROUNDS}", "dark_grey"))
         for name, role in random.sample(players, len(players)):
             message = query(name, role, players, townsquare)
             print(format_title(name, role), message)
@@ -98,9 +99,10 @@ def main():
     townsquare += [
         (
             "",
-            "The final round is over, time to vote! Answer only with the name of the person you want to vote out.",
+            f"The final round is over, time to vote! Answer only with the name of the person you want to vote out: {', '.join(n for n, _ in players)}",
         )
     ]
+    print(colored(f"Voting time", "dark_grey"))
     for name, role in players:
         message = query(name, role, players, townsquare)
         print(format_title(name, role), message)
