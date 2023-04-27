@@ -122,7 +122,7 @@ def main():
     for name, votes in votes.items():
         if votes >= len(players) / 2:
             role = [r for n, r in players if n == name][0]
-            print(colored(f"{name} ({role}) was voted out"), "dark_gray")
+            print(colored(f"{name} ({role}) was voted out", "dark_gray"))
             if role == "The Gangster":
                 print(colored(f"The good team wins!", "green"))
             else:
