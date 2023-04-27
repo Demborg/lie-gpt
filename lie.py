@@ -1,6 +1,5 @@
 import os
 import random
-import re
 
 import openai
 from termcolor import colored
@@ -22,8 +21,6 @@ First during the night the roles and names will be assigned to each of the playe
 Secondly during the day there will be time to discuss your knowledge of the town and your suspicions against each other. This will take place during 3 rounds in which you will be allowed to state your case to the rest of the town and address any allegations made against you.
 Finally during the night you will vote on which other player you want excommunicated from the town. Voting takes place in secret and only the result gets known.
 At the end of the game the good team (Detective and Fool) win if they manage to vote out the gangster and the bad team (gangster) wins if he manages to vote out the detective.
-
-All messages will be prefaced with the name of the player sending the message which will look like this: [ name ] message. These tags will be automatically added to messages and any usage of [] in your own text is prohibitetd and will be stripped out.
 
 Remember that the game is very short and that playing passively will not give you enough information to win. You will have to be active and try to get information out of the other players.
 
@@ -62,8 +59,8 @@ def make_message(name, message, player):
     if player == "":
         return {"role": "system", "content": f"{message}"}
     if name == player:
-        return {"role": "assistant", "content": f"{message}"}
-    return {"role": "user", "content": f"[{ player }] {message}"}
+        return {"role": "assistant", "content": message}
+    return {"role": "user", "content": message, "name": player}
 
 
 def query(name, role, players, townsquare):
@@ -74,7 +71,7 @@ def query(name, role, players, townsquare):
         for player, message in intro + townsquare + prompt
     ]
     response = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=messages)
-    return re.sub("\[[^\]]*\]", "", response.choices[0]["message"]["content"])
+    return response.choices[0]["message"]["content"]
 
 
 def format_title(name, role):
